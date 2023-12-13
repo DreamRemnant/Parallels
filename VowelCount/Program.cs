@@ -23,12 +23,13 @@ namespace FileEncryption
                 cardsPath = Path.Combine(Environment.CurrentDirectory, "/Cards");
                 Console.WriteLine(ex.Message);
             }
-            EncriptarArchivos(cardsPath);
-            EncriptarArchivosParalelo(cardsPath);
+            Double tiempoSíncrono = EncriptarArchivos(cardsPath);
+            Double tiempoParalelo = EncriptarArchivosParalelo(cardsPath);
+            Console.WriteLine($"El método paralelo fue {tiempoParalelo - tiempoSíncrono} milisegundos más rapido que el método síncrono.");
             Console.ReadKey();
         }
 
-        private static void EncriptarArchivos(string filesPath)
+        private static double EncriptarArchivos(string filesPath)
         {
             Stopwatch stopwatch = new Stopwatch();
             DateTime startTime = DateTime.Now;
@@ -56,8 +57,9 @@ namespace FileEncryption
             TimeSpan timeSpan = stopwatch.Elapsed;
             double executionTime = timeSpan.TotalMilliseconds;
             Console.WriteLine($"Método Síncrono\nFecha de inicio: {startDateTime} || Fecha de final: {endDateTime} || Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.\n");
+            return executionTime;
         }
-        private static void EncriptarArchivosParalelo(string filesPath)
+        private static double EncriptarArchivosParalelo(string filesPath)
         {
             Stopwatch stopwatch = new Stopwatch();
             DateTime startTime = DateTime.Now;
@@ -86,6 +88,7 @@ namespace FileEncryption
             TimeSpan timeSpan = stopwatch.Elapsed;
             double executionTime = timeSpan.TotalMilliseconds;
             Console.WriteLine($"Método Paralelo\nFecha de inicio: {startDateTime} || Fecha de final: {endDateTime} || Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.\n");
+            return executionTime;
         }
     }
 }
