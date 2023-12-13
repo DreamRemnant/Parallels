@@ -14,18 +14,18 @@ namespace FileEncryption
              * la carpeta del proyecto actual y se puede utilizar /Cards con normalidad. Se usa un try catch para detectar cuando no se encuentre
              * la carpeta y se modifica la dirección de la carpeta para el 2do caso.
              */
-            string cardsPath = Path.Combine(Environment.CurrentDirectory, "../../../Cards");
+            string cardsPath = Path.Combine(Environment.CurrentDirectory, "../../../Files");
             try
             {
                 Directory.EnumerateFiles(cardsPath);
             } catch (Exception ex)
             {
-                cardsPath = Path.Combine(Environment.CurrentDirectory, "/Cards");
+                cardsPath = Path.Combine(Environment.CurrentDirectory, "/Files");
                 Console.WriteLine(ex.Message);
             }
             Double tiempoSíncrono = EncriptarArchivos(cardsPath);
             Double tiempoParalelo = EncriptarArchivosParalelo(cardsPath);
-            Console.WriteLine($"El método paralelo fue {tiempoParalelo - tiempoSíncrono} milisegundos más rapido que el método síncrono.");
+            Console.WriteLine($"El método paralelo fue {tiempoSíncrono - tiempoParalelo} milisegundos más rapido que el método síncrono.");
             Console.ReadKey();
         }
 
