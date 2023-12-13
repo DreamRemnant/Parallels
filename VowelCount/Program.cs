@@ -1,16 +1,23 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
-namespace FileTransfer
+namespace FileEncryption
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            string cardsPath = Path.Combine(Environment.CurrentDirectory, "../../../Cards");
+            Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "../../../Cards\n"));
+
+            EncriptarArchivos(cardsPath);
+            Console.ReadKey();
+            /*
             List<char> vowels = new List<char> { 'a', 'e', 'i', 'o', 'u' };
             var path = Path.Combine(Environment.CurrentDirectory, "../../../Lorem Ipsum.txt");
-            Double tiempoSincrono = 0.0;
-            Double tiempoParalelo = 0.0;
+            double tiempoSincrono = 0.0;
+            double tiempoParalelo = 0.0;
 
             Console.WriteLine("Contando vocales con método síncrono.");
             tiempoSincrono = ContarVocales(vowels, path);
@@ -19,6 +26,33 @@ namespace FileTransfer
 
             Console.WriteLine($"El método síncrono tardó {tiempoSincrono - tiempoParalelo} más que el paralelo.");
             Console.ReadLine();
+            */
+        }
+
+        private static void EncriptarArchivos(string filesPath)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            IEnumerable<string> files = Directory.EnumerateFiles(filesPath);
+            foreach (var file in files)
+            {
+                byte[] fileBytes = File.ReadAllBytes(file);
+                byte[] hashBytes;
+                try
+                {
+                    using (var sha256 = SHA256.Create())
+                    {
+                        hashBytes = sha256.ComputeHash(fileBytes);
+                    }
+                } catch (Exception ex)
+                {
+                    Console.WriteLine($"{ex.Message}");
+                }
+            }
+            stopwatch.Stop();
+            TimeSpan timeSpan = stopwatch.Elapsed;
+            double executionTime = timeSpan.TotalMilliseconds;
+            Console.WriteLine($"Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.");
         }
 
         private static double ContarVocales(List<char> vows, string Lorem)
@@ -48,8 +82,9 @@ namespace FileTransfer
             sw.Start();
             string content = File.ReadAllText(Lorem);
             ConcurrentBag<char> foundVowels = new ConcurrentBag<char>();
-            
-            Parallel.ForEach(content, character => {
+
+            Parallel.ForEach(content, character =>
+            {
                 if (vows.Contains(character))
                 {
                     foundVowels.Add(character);
