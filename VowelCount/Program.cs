@@ -12,6 +12,7 @@ namespace FileEncryption
             Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "../../../Cards\n"));
 
             EncriptarArchivos(cardsPath);
+            EncriptarArchivosParalelo(cardsPath);
             Console.ReadKey();
             /*
             List<char> vowels = new List<char> { 'a', 'e', 'i', 'o', 'u' };
@@ -32,6 +33,8 @@ namespace FileEncryption
         private static void EncriptarArchivos(string filesPath)
         {
             Stopwatch stopwatch = new Stopwatch();
+            DateTime startTime = DateTime.Now;
+            string startDateTime = startTime.ToString("dddd, dd MMMM yyyy HH:mm:ss");
             stopwatch.Start();
             IEnumerable<string> files = Directory.EnumerateFiles(filesPath);
             foreach (var file in files)
@@ -50,9 +53,41 @@ namespace FileEncryption
                 }
             }
             stopwatch.Stop();
+            DateTime endTime = DateTime.Now;
+            string endDateTime = startTime.ToString("dddd, dd MMMM yyyy HH:mm:ss");
             TimeSpan timeSpan = stopwatch.Elapsed;
             double executionTime = timeSpan.TotalMilliseconds;
-            Console.WriteLine($"Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.");
+            Console.WriteLine($"Método Síncrono\nFecha de inicio: {startDateTime} || Fecha de final: {endDateTime} || Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.\n");
+        }
+        private static void EncriptarArchivosParalelo(string filesPath)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            DateTime startTime = DateTime.Now;
+            string startDateTime = startTime.ToString("dddd, dd MMMM yyyy HH:mm:ss");
+            stopwatch.Start();
+            IEnumerable<string> files = Directory.EnumerateFiles(filesPath);
+            Parallel.ForEach(files, file =>
+            {
+                byte[] fileBytes = File.ReadAllBytes(file);
+                byte[] hashBytes;
+                try
+                {
+                    using (var sha256 = SHA256.Create())
+                    {
+                        hashBytes = sha256.ComputeHash(fileBytes);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{ex.Message}");
+                }
+            });
+            stopwatch.Stop();
+            DateTime endTime = DateTime.Now;
+            string endDateTime = startTime.ToString("dddd, dd MMMM yyyy HH:mm:ss");
+            TimeSpan timeSpan = stopwatch.Elapsed;
+            double executionTime = timeSpan.TotalMilliseconds;
+            Console.WriteLine($"Método Paralelo\nFecha de inicio: {startDateTime} || Fecha de final: {endDateTime} || Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.\n");
         }
 
         private static double ContarVocales(List<char> vows, string Lorem)
