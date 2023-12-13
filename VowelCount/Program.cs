@@ -7,27 +7,25 @@ namespace FileEncryption
     internal class Program
     {
         static void Main(string[] args)
-        {
+        {   
+            /**
+             * Se observó que al utilizar Environment.CurrentDirectory en Visual Studio 2023 se obtiene la carpeta Bin\Net 6\ o similar
+             * y no se encuentra la carpeta de las imagenes especificadas. Cuando se utiliza el mismo método en Visual Studio Code se obtiene
+             * la carpeta del proyecto actual y se puede utilizar /Cards con normalidad. Se usa un try catch para detectar cuando no se encuentre
+             * la carpeta y se modifica la dirección de la carpeta para el 2do caso.
+             */
             string cardsPath = Path.Combine(Environment.CurrentDirectory, "../../../Cards");
-            Console.WriteLine(Path.Combine(Environment.CurrentDirectory, "../../../Cards\n"));
-
+            try
+            {
+                Directory.EnumerateFiles(cardsPath);
+            } catch (Exception ex)
+            {
+                cardsPath = Path.Combine(Environment.CurrentDirectory, "/Cards");
+                Console.WriteLine(ex.Message);
+            }
             EncriptarArchivos(cardsPath);
             EncriptarArchivosParalelo(cardsPath);
             Console.ReadKey();
-            /*
-            List<char> vowels = new List<char> { 'a', 'e', 'i', 'o', 'u' };
-            var path = Path.Combine(Environment.CurrentDirectory, "../../../Lorem Ipsum.txt");
-            double tiempoSincrono = 0.0;
-            double tiempoParalelo = 0.0;
-
-            Console.WriteLine("Contando vocales con método síncrono.");
-            tiempoSincrono = ContarVocales(vowels, path);
-            Console.WriteLine("Contando vocales con método paralelo.");
-            tiempoParalelo = ContarVocalesParalelo(vowels, path);
-
-            Console.WriteLine($"El método síncrono tardó {tiempoSincrono - tiempoParalelo} más que el paralelo.");
-            Console.ReadLine();
-            */
         }
 
         private static void EncriptarArchivos(string filesPath)
@@ -88,51 +86,6 @@ namespace FileEncryption
             TimeSpan timeSpan = stopwatch.Elapsed;
             double executionTime = timeSpan.TotalMilliseconds;
             Console.WriteLine($"Método Paralelo\nFecha de inicio: {startDateTime} || Fecha de final: {endDateTime} || Se encontraron {files.Count()} archivos || Tiempo de ejecución: {executionTime} milisegundos.\n");
-        }
-
-        private static double ContarVocales(List<char> vows, string Lorem)
-        {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            string content = File.ReadAllText(Lorem);
-            int vowelCount = 0;
-            foreach (char c in content)
-            {
-                if (vows.Contains(c))
-                {
-                    vowelCount++;
-                }
-            }
-            sw.Stop();
-            TimeSpan ts = sw.Elapsed;
-            string elapsedTime = ts.TotalMilliseconds.ToString();
-            Console.WriteLine($"Se encontraron {vowelCount} vocales en el texto.");
-            Console.WriteLine($"Tiempo de ejecucion: {elapsedTime} milisegundos\n");
-            return ts.TotalMilliseconds;
-        }
-
-        private static double ContarVocalesParalelo(List<char> vows, string Lorem)
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            sw.Start();
-            string content = File.ReadAllText(Lorem);
-            ConcurrentBag<char> foundVowels = new ConcurrentBag<char>();
-
-            Parallel.ForEach(content, character =>
-            {
-                if (vows.Contains(character))
-                {
-                    foundVowels.Add(character);
-                }
-            });
-            sw.Stop();
-            int vowelCount = foundVowels.Count();
-
-            TimeSpan ts = sw.Elapsed;
-            string elapsedTime = ts.TotalMilliseconds.ToString();
-            Console.WriteLine($"Se encontraron {vowelCount} vocales en el texto.");
-            Console.WriteLine($"Tiempo de ejecucion: {elapsedTime} milisegundos\n");
-            return ts.TotalMilliseconds;
         }
     }
 }
